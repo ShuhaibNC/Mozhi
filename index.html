@@ -1,13 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Mozhi Dictionary</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Baloo+Chettan+2:wght@400..800&family=Orbitron:wght@900&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Baloo+Chettan+2:wght@400..800&family=Orbitron:wght@900&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
     <style>
         * {
             margin: 0;
@@ -135,7 +139,8 @@
             height: 400px;
         }
 
-        .suggestions-panel, .meaning-panel {
+        .suggestions-panel,
+        .meaning-panel {
             background: var(--bg-card);
             border-radius: var(--radius);
             border: 1px solid var(--border);
@@ -386,36 +391,72 @@
                 gap: 1rem;
                 height: auto;
             }
-            
-            .suggestions-panel, .meaning-panel {
+
+            .suggestions-panel,
+            .meaning-panel {
                 height: 300px;
             }
-        }
 
-        /* Animation for suggestions */
-        .suggestion-item {
-            animation: slideIn 0.3s ease-out;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(-20px);
+            .menu-title {
+                font-size: 1.5rem;
+                left: auto;
             }
-            to {
-                opacity: 1;
-                transform: translateX(0);
+
+            .menu-item {
+                padding: .5rem;
+                margin: 0 0.5rem;
+            }
+
+            .menu-left {
+                gap: .5rem;
+            }
+
+            .menu-right {
+                gap: 1rem;
+            }
+
+            .dark-text {
+                font-size: 1rem;
+            }
+            .theme-toggle{
+                width: 50px;
+                height: 20px;
+            }
+            .theme-toggle::before{
+                width: 18px;
+                height: 18px;
+                top: auto;
+                left: 0;
+            }
+            .menu-bar {
+                padding: 1rem 1rem;
             }
         }
+            /* Animation for suggestions */
+            .suggestion-item {
+                animation: slideIn 0.3s ease-out;
+            }
 
-        /* Menu spacing adjustment */
-        .container {
-            margin-top: 30px;
-        }
+            @keyframes slideIn {
+                from {
+                    opacity: 0;
+                    transform: translateX(-20px);
+                }
+
+                to {
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+            }
+
+            /* Menu spacing adjustment */
+            .container {
+                margin-top: 30px;
+            }
     </style>
 </head>
-<body data-theme="dark">
 
+<body data-theme="dark">
     <div class="menu-bar">
         <div class="menu-left">
             <div class="menu-title">മൊഴി</div>
@@ -427,21 +468,15 @@
             </div>
         </div>
         <div class="menu-right">
-            <span style="color: #cbd5e1; font-weight: 500;">Dark Mode</span>
+            <span class="dark-text" style="color: #cbd5e1; font-weight: 500">Dark theme</span>
             <div class="theme-toggle" onclick="toggleTheme()"></div>
         </div>
     </div>
 
     <div class="container">
-
         <div class="search-section">
-            <input 
-                type="text" 
-                class="search-input" 
-                placeholder="Search for a word..." 
-                id="searchInput"
-                oninput="searchWords()"
-            >
+            <input type="text" class="search-input" placeholder="Search for a word..." id="searchInput"
+                oninput="searchWords()" />
         </div>
 
         <div class="content-grid">
@@ -471,7 +506,9 @@
     <div id="aboutModal" class="modal">
         <div class="modal-content">
             <h2 class="modal-title">About Mozhi Dictionary</h2>
-            <p class="modal-text">Made by ShuhaibNC<br>Credit: Kailash Nadh (dataset)</p>
+            <p class="modal-text">
+                Made by ShuhaibNC<br />Credit: Kailash Nadh (dataset)
+            </p>
             <button class="btn" onclick="closeModal()">OK</button>
         </div>
     </div>
@@ -486,61 +523,62 @@
         async function loadDictionaryData() {
             try {
                 showLoadingState();
-                const response = await fetch('enml.json');
+                const response = await fetch("enml.json");
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 dictionaryData = await response.json();
                 allWords = Object.keys(dictionaryData).sort();
                 isDataLoaded = true;
-                
+
                 console.log(`✅ Dictionary loaded: ${allWords.length} words`);
                 hideLoadingState();
-                
+
                 // Enable search input
-                document.getElementById('searchInput').disabled = false;
-                document.getElementById('searchInput').placeholder = "Search for a word...";
-                
+                document.getElementById("searchInput").disabled = false;
+                document.getElementById("searchInput").placeholder =
+                    "Search for a word...";
             } catch (error) {
-                console.error('❌ Error loading dictionary:', error);
+                console.error("❌ Error loading dictionary:", error);
                 showErrorState(error.message);
             }
         }
 
         function showLoadingState() {
-            const suggestionsList = document.getElementById('suggestionsList');
-            const meaningContent = document.getElementById('meaningContent');
-            
+            const suggestionsList = document.getElementById("suggestionsList");
+            const meaningContent = document.getElementById("meaningContent");
+
             suggestionsList.innerHTML = `
                 <div class="empty-state">
                     <div class="empty-state-icon">⏳</div>
                     <div>Loading dictionary...</div>
                 </div>
             `;
-            
+
             meaningContent.innerHTML = `
                 <div class="empty-state">
                     <div class="empty-state-icon">⏳</div>
                     <div>Loading dictionary data...</div>
                 </div>
             `;
-            
+
             // Disable search input while loading
-            document.getElementById('searchInput').disabled = true;
-            document.getElementById('searchInput').placeholder = "Loading dictionary...";
+            document.getElementById("searchInput").disabled = true;
+            document.getElementById("searchInput").placeholder =
+                "Loading dictionary...";
         }
 
         function hideLoadingState() {
-            const suggestionsList = document.getElementById('suggestionsList');
-            const meaningContent = document.getElementById('meaningContent');
-            
+            const suggestionsList = document.getElementById("suggestionsList");
+            const meaningContent = document.getElementById("meaningContent");
+
             suggestionsList.innerHTML = `
                 <div class="empty-state">
                     <div class="empty-state-icon">🔍</div>
                     <div>Start typing to see suggestions</div>
                 </div>
             `;
-            
+
             meaningContent.innerHTML = `
                 <div class="empty-state">
                     <div class="empty-state-icon">📖</div>
@@ -550,9 +588,9 @@
         }
 
         function showErrorState(errorMessage) {
-            const suggestionsList = document.getElementById('suggestionsList');
-            const meaningContent = document.getElementById('meaningContent');
-            
+            const suggestionsList = document.getElementById("suggestionsList");
+            const meaningContent = document.getElementById("meaningContent");
+
             suggestionsList.innerHTML = `
                 <div class="empty-state">
                     <div class="empty-state-icon">❌</div>
@@ -560,7 +598,7 @@
                     <div style="font-size: 0.9rem; margin-top: 0.5rem; opacity: 0.7;">${errorMessage}</div>
                 </div>
             `;
-            
+
             meaningContent.innerHTML = `
                 <div class="empty-state">
                     <div class="empty-state-icon">❌</div>
@@ -568,52 +606,56 @@
                     <div style="font-size: 0.9rem; margin-top: 0.5rem; opacity: 0.7;">Make sure enml.json is in the same folder</div>
                 </div>
             `;
-            
-            document.getElementById('searchInput').disabled = true;
-            document.getElementById('searchInput').placeholder = "Dictionary not available";
+
+            document.getElementById("searchInput").disabled = true;
+            document.getElementById("searchInput").placeholder =
+                "Dictionary not available";
         }
 
         // Theme management
         function toggleTheme() {
             const body = document.body;
-            const currentTheme = body.getAttribute('data-theme');
-            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-            body.setAttribute('data-theme', newTheme);
-            
+            const currentTheme = body.getAttribute("data-theme");
+            const newTheme = currentTheme === "light" ? "dark" : "light";
+            body.setAttribute("data-theme", newTheme);
+
             // Save theme preference
             try {
-                localStorage.setItem('theme', newTheme);
+                localStorage.setItem("theme", newTheme);
             } catch (e) {
                 // Handle case where localStorage is not available
-                console.log('LocalStorage not available, theme not saved');
+                console.log("LocalStorage not available, theme not saved");
             }
         }
 
         // Load saved theme
         try {
-            const savedTheme = localStorage.getItem('theme') || 'dark';
-            document.body.setAttribute('data-theme', savedTheme);
+            const savedTheme = localStorage.getItem("theme") || "dark";
+            document.body.setAttribute("data-theme", savedTheme);
         } catch (e) {
             // If localStorage is not available, use dark theme as default
-            document.body.setAttribute('data-theme', 'dark');
+            document.body.setAttribute("data-theme", "dark");
         }
 
         // Menu functions
         function toggleDropdown(id) {
             const dropdown = document.getElementById(id);
-            const allDropdowns = document.querySelectorAll('.dropdown');
-            
-            allDropdowns.forEach(d => {
-                if (d.id !== id) d.style.display = 'none';
+            const allDropdowns = document.querySelectorAll(".dropdown");
+
+            allDropdowns.forEach((d) => {
+                if (d.id !== id) d.style.display = "none";
             });
-            
-            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+
+            dropdown.style.display =
+                dropdown.style.display === "block" ? "none" : "block";
         }
 
         // Close dropdowns when clicking outside
-        document.addEventListener('click', function(event) {
-            if (!event.target.closest('.menu-item')) {
-                document.querySelectorAll('.dropdown').forEach(d => d.style.display = 'none');
+        document.addEventListener("click", function (event) {
+            if (!event.target.closest(".menu-item")) {
+                document
+                    .querySelectorAll(".dropdown")
+                    .forEach((d) => (d.style.display = "none"));
             }
         });
 
@@ -622,10 +664,13 @@
             if (!isDataLoaded) {
                 return; // Don't search if data isn't loaded yet
             }
-            
-            const query = document.getElementById('searchInput').value.toLowerCase().trim();
-            const suggestionsList = document.getElementById('suggestionsList');
-            
+
+            const query = document
+                .getElementById("searchInput")
+                .value.toLowerCase()
+                .trim();
+            const suggestionsList = document.getElementById("suggestionsList");
+
             if (!query) {
                 suggestionsList.innerHTML = `
                     <div class="empty-state">
@@ -637,9 +682,9 @@
             }
 
             // Find matching words (case-insensitive, starts with query)
-            const matches = allWords.filter(word => 
-                word.toLowerCase().startsWith(query)
-            ).slice(0, 50); // Limit to 50 results for performance
+            const matches = allWords
+                .filter((word) => word.toLowerCase().startsWith(query))
+                .slice(0, 50); // Limit to 50 results for performance
 
             if (matches.length === 0) {
                 suggestionsList.innerHTML = `
@@ -649,16 +694,22 @@
                     </div>
                 `;
             } else {
-                suggestionsList.innerHTML = matches.map(word => 
-                    `<div class="suggestion-item" onclick="selectWord('${word.replace(/'/g, "\\'")}')">${word}</div>`
-                ).join('');
+                suggestionsList.innerHTML = matches
+                    .map(
+                        (word) =>
+                            `<div class="suggestion-item" onclick="selectWord('${word.replace(
+                                /'/g,
+                                "\\'"
+                            )}')">${word}</div>`
+                    )
+                    .join("");
             }
         }
 
         function selectWord(word) {
-            const meaningContent = document.getElementById('meaningContent');
+            const meaningContent = document.getElementById("meaningContent");
             const meanings = dictionaryData[word] || [];
-            
+
             if (meanings.length === 0) {
                 meaningContent.innerHTML = `
                     <div class="empty-state">
@@ -670,54 +721,62 @@
                 meaningContent.innerHTML = `
                     <div class="selected-word">${word}</div>
                     <ul class="meanings-list">
-                        ${meanings.map(meaning => `<li class="meaning-item">${meaning}</li>`).join('')}
+                        ${meanings
+                        .map(
+                            (meaning) =>
+                                `<li class="meaning-item">${meaning}</li>`
+                        )
+                        .join("")}
                     </ul>
                 `;
             }
-            
+
             // Highlight selected word
-            document.querySelectorAll('.suggestion-item').forEach(item => {
+            document.querySelectorAll(".suggestion-item").forEach((item) => {
                 if (item.textContent === word) {
-                    item.style.background = 'var(--bg-primary)';
-                    item.style.color = 'var(--text-primary)';
+                    item.style.background = "var(--bg-primary)";
+                    item.style.color = "var(--text-primary)";
                 } else {
-                    item.style.background = '';
-                    item.style.color = 'var(--text-secondary)';
+                    item.style.background = "";
+                    item.style.color = "var(--text-secondary)";
                 }
             });
         }
 
         function showAbout() {
-            document.getElementById('aboutModal').style.display = 'flex';
-            toggleDropdown('aboutDropdown');
+            document.getElementById("aboutModal").style.display = "flex";
+            toggleDropdown("aboutDropdown");
         }
 
         function closeModal() {
-            document.getElementById('aboutModal').style.display = 'none';
+            document.getElementById("aboutModal").style.display = "none";
         }
 
         // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener("DOMContentLoaded", function () {
             // Load dictionary data first
             loadDictionaryData();
-            
+
             // Focus on search input after a short delay to ensure it's enabled
             setTimeout(() => {
                 if (isDataLoaded) {
-                    document.getElementById('searchInput').focus();
+                    document.getElementById("searchInput").focus();
                 }
             }, 100);
         });
 
         // Handle Enter key
-        document.getElementById('searchInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                const firstSuggestion = document.querySelector('.suggestion-item');
-                if (firstSuggestion) {
-                    firstSuggestion.click();
+        document
+            .getElementById("searchInput")
+            .addEventListener("keypress", function (e) {
+                if (e.key === "Enter") {
+                    const firstSuggestion = document.querySelector(".suggestion-item");
+                    if (firstSuggestion) {
+                        firstSuggestion.click();
+                    }
                 }
-            }
-        });
+            });
     </script>
 </body>
+
 </html>
