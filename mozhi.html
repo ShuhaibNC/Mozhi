@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mozhi Dictionary</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+Chettan+2:wght@400..800&family=Orbitron:wght@900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-card: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #000000;
+            --text-muted: #94a3b8;
+            --border: #e2e8f0;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --radius: 12px;
+            --radius-sm: 8px;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #212121;
+            --bg-secondary: #303030;
+            --bg-card: #303030;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
+            --border: #404040;
+            --accent: #60a5fa;
+            --accent-hover: #3b82f6;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            transition: all 0.3s ease;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            min-height: 100vh;
+            margin-top: 30px;
+        }
+
+        .title {
+            font-family: 'Baloo Chettan 2', system-ui, -apple-system, sans-serif;
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .theme-toggle {
+            position: relative;
+            width: 60px;
+            height: 30px;
+            background: var(--bg-secondary);
+            border-radius: 15px;
+            border: 2px solid var(--border);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle::before {
+            content: '';
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            background: var(--accent);
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s ease;
+            box-shadow: var(--shadow);
+        }
+
+        [data-theme="dark"] .theme-toggle::before {
+            transform: translateX(28px);
+        }
+
+        .search-section {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            margin-top: 2rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            font-size: 1.1rem;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .search-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgb(59 130 246 / 0.1);
+        }
+
+        .search-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            height: 400px;
+        }
+
+        .suggestions-panel, .meaning-panel {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            padding: 1.5rem;
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--text-primary);
+        }
+
+        .suggestions-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0;
+        }
+
+        .suggestion-item {
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+
+        .suggestion-item:hover {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transform: translateX(4px);
+        }
+
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+
+        .meaning-content {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+
+        .selected-word {
+            font-family: 'Baloo Chettan 2', system-ui, -apple-system, sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .meanings-list {
+            list-style: none;
+        }
+
+        .meaning-item {
+            font-family: 'Baloo Chettan 2', system-ui, -apple-system, sans-serif;
+            padding: 0.75rem 0;
+            position: relative;
+            padding-left: 2rem;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            line-height: 1.7;
+            font-weight: 800;
+        }
+
+        .meaning-item::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .menu-bar {
+            background: #181818;
+            border-bottom: 1px solid #404040;
+            padding: 0.5rem 2rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .menu-left {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .menu-title {
+            font-family: 'Baloo Chettan 2', system-ui, -apple-system, sans-serif;
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #60a5fa, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .menu-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .menu-item {
+            position: relative;
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-sm);
+            transition: all 0.2s ease;
+            color: #cbd5e1;
+            background-color: #303030;
+        }
+
+        .menu-item:hover {
+            background: #181818;
+            color: #f1f5f9;
+        }
+
+        .dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: #181818;
+            border: 1px solid #404040;
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-lg);
+            min-width: 120px;
+            display: none;
+            z-index: 200;
+        }
+
+        .dropdown-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #cbd5e1;
+        }
+
+        .dropdown-item:hover {
+            background: #303030;
+            color: #f1f5f9;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 2rem;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: var(--shadow-lg);
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .modal-text {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        .btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #404040;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #505050;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+                height: auto;
+            }
+            
+            .suggestions-panel, .meaning-panel {
+                height: 300px;
+            }
+        }
+
+        /* Animation for suggestions */
+        .suggestion-item {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Menu spacing adjustment */
+        .container {
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body data-theme="dark">
+
+    <div class="menu-bar">
+        <div class="menu-left">
+            <div class="menu-title">മൊഴി</div>
+            <div class="menu-item" onclick="toggleDropdown('aboutDropdown')">
+                About
+                <div id="aboutDropdown" class="dropdown">
+                    <div class="dropdown-item" onclick="showAbout()">Credit</div>
+                </div>
+            </div>
+        </div>
+        <div class="menu-right">
+            <span style="color: #cbd5e1; font-weight: 500;">Dark Mode</span>
+            <div class="theme-toggle" onclick="toggleTheme()"></div>
+        </div>
+    </div>
+
+    <div class="container">
+
+        <div class="search-section">
+            <input 
+                type="text" 
+                class="search-input" 
+                placeholder="Search for a word..." 
+                id="searchInput"
+                oninput="searchWords()"
+            >
+        </div>
+
+        <div class="content-grid">
+            <div class="suggestions-panel">
+                <div class="panel-header">Suggestions</div>
+                <div class="suggestions-list" id="suggestionsList">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🔍</div>
+                        <div>Start typing to see suggestions</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="meaning-panel">
+                <div class="panel-header">Meaning</div>
+                <div class="meaning-content" id="meaningContent">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📖</div>
+                        <div>Select a word to see its meaning</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- About Modal -->
+    <div id="aboutModal" class="modal">
+        <div class="modal-content">
+            <h2 class="modal-title">About Mozhi Dictionary</h2>
+            <p class="modal-text">Made by ShuhaibNC<br>Credit: Kailash Nadh (dataset)</p>
+            <button class="btn" onclick="closeModal()">OK</button>
+        </div>
+    </div>
+
+    <script>
+        // Dictionary data - will be loaded from enml.json
+        let dictionaryData = {};
+        let allWords = [];
+        let isDataLoaded = false;
+
+        // Load dictionary data from JSON file
+        async function loadDictionaryData() {
+            try {
+                showLoadingState();
+                const response = await fetch('enml.json');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                dictionaryData = await response.json();
+                allWords = Object.keys(dictionaryData).sort();
+                isDataLoaded = true;
+                
+                console.log(`✅ Dictionary loaded: ${allWords.length} words`);
+                hideLoadingState();
+                
+                // Enable search input
+                document.getElementById('searchInput').disabled = false;
+                document.getElementById('searchInput').placeholder = "Search for a word...";
+                
+            } catch (error) {
+                console.error('❌ Error loading dictionary:', error);
+                showErrorState(error.message);
+            }
+        }
+
+        function showLoadingState() {
+            const suggestionsList = document.getElementById('suggestionsList');
+            const meaningContent = document.getElementById('meaningContent');
+            
+            suggestionsList.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">⏳</div>
+                    <div>Loading dictionary...</div>
+                </div>
+            `;
+            
+            meaningContent.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">⏳</div>
+                    <div>Loading dictionary data...</div>
+                </div>
+            `;
+            
+            // Disable search input while loading
+            document.getElementById('searchInput').disabled = true;
+            document.getElementById('searchInput').placeholder = "Loading dictionary...";
+        }
+
+        function hideLoadingState() {
+            const suggestionsList = document.getElementById('suggestionsList');
+            const meaningContent = document.getElementById('meaningContent');
+            
+            suggestionsList.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">🔍</div>
+                    <div>Start typing to see suggestions</div>
+                </div>
+            `;
+            
+            meaningContent.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">📖</div>
+                    <div>Select a word to see its meaning</div>
+                </div>
+            `;
+        }
+
+        function showErrorState(errorMessage) {
+            const suggestionsList = document.getElementById('suggestionsList');
+            const meaningContent = document.getElementById('meaningContent');
+            
+            suggestionsList.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">❌</div>
+                    <div>Failed to load dictionary</div>
+                    <div style="font-size: 0.9rem; margin-top: 0.5rem; opacity: 0.7;">${errorMessage}</div>
+                </div>
+            `;
+            
+            meaningContent.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">❌</div>
+                    <div>Dictionary not available</div>
+                    <div style="font-size: 0.9rem; margin-top: 0.5rem; opacity: 0.7;">Make sure enml.json is in the same folder</div>
+                </div>
+            `;
+            
+            document.getElementById('searchInput').disabled = true;
+            document.getElementById('searchInput').placeholder = "Dictionary not available";
+        }
+
+        // Theme management
+        function toggleTheme() {
+            const body = document.body;
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            body.setAttribute('data-theme', newTheme);
+            
+            // Save theme preference
+            try {
+                localStorage.setItem('theme', newTheme);
+            } catch (e) {
+                // Handle case where localStorage is not available
+                console.log('LocalStorage not available, theme not saved');
+            }
+        }
+
+        // Load saved theme
+        try {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            document.body.setAttribute('data-theme', savedTheme);
+        } catch (e) {
+            // If localStorage is not available, use dark theme as default
+            document.body.setAttribute('data-theme', 'dark');
+        }
+
+        // Menu functions
+        function toggleDropdown(id) {
+            const dropdown = document.getElementById(id);
+            const allDropdowns = document.querySelectorAll('.dropdown');
+            
+            allDropdowns.forEach(d => {
+                if (d.id !== id) d.style.display = 'none';
+            });
+            
+            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+        }
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.menu-item')) {
+                document.querySelectorAll('.dropdown').forEach(d => d.style.display = 'none');
+            }
+        });
+
+        // Search functionality
+        function searchWords() {
+            if (!isDataLoaded) {
+                return; // Don't search if data isn't loaded yet
+            }
+            
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            const suggestionsList = document.getElementById('suggestionsList');
+            
+            if (!query) {
+                suggestionsList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🔍</div>
+                        <div>Start typing to see suggestions</div>
+                    </div>
+                `;
+                return;
+            }
+
+            // Find matching words (case-insensitive, starts with query)
+            const matches = allWords.filter(word => 
+                word.toLowerCase().startsWith(query)
+            ).slice(0, 50); // Limit to 50 results for performance
+
+            if (matches.length === 0) {
+                suggestionsList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">❌</div>
+                        <div>No words found</div>
+                    </div>
+                `;
+            } else {
+                suggestionsList.innerHTML = matches.map(word => 
+                    `<div class="suggestion-item" onclick="selectWord('${word.replace(/'/g, "\\'")}')">${word}</div>`
+                ).join('');
+            }
+        }
+
+        function selectWord(word) {
+            const meaningContent = document.getElementById('meaningContent');
+            const meanings = dictionaryData[word] || [];
+            
+            if (meanings.length === 0) {
+                meaningContent.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">❓</div>
+                        <div>No meanings found</div>
+                    </div>
+                `;
+            } else {
+                meaningContent.innerHTML = `
+                    <div class="selected-word">${word}</div>
+                    <ul class="meanings-list">
+                        ${meanings.map(meaning => `<li class="meaning-item">${meaning}</li>`).join('')}
+                    </ul>
+                `;
+            }
+            
+            // Highlight selected word
+            document.querySelectorAll('.suggestion-item').forEach(item => {
+                if (item.textContent === word) {
+                    item.style.background = 'var(--bg-primary)';
+                    item.style.color = 'var(--text-primary)';
+                } else {
+                    item.style.background = '';
+                    item.style.color = 'var(--text-secondary)';
+                }
+            });
+        }
+
+        function showAbout() {
+            document.getElementById('aboutModal').style.display = 'flex';
+            toggleDropdown('aboutDropdown');
+        }
+
+        function closeModal() {
+            document.getElementById('aboutModal').style.display = 'none';
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load dictionary data first
+            loadDictionaryData();
+            
+            // Focus on search input after a short delay to ensure it's enabled
+            setTimeout(() => {
+                if (isDataLoaded) {
+                    document.getElementById('searchInput').focus();
+                }
+            }, 100);
+        });
+
+        // Handle Enter key
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const firstSuggestion = document.querySelector('.suggestion-item');
+                if (firstSuggestion) {
+                    firstSuggestion.click();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
